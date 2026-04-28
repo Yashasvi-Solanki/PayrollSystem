@@ -9,34 +9,17 @@ import com.payroll.util.Logger;
 
 import java.util.Scanner;
 
-/**
- * ╔══════════════════════════════════════════════════════╗
- * ║       MULTITHREADED PAYROLL MANAGEMENT SYSTEM        ║
- * ║                  OOP Project — Java                  ║
- * ╚══════════════════════════════════════════════════════╝
- *
- * Entry point. Runs a console-based menu loop.
- *
- * Concepts demonstrated here:
- *  - Object creation and usage
- *  - Exception handling (try-catch)
- *  - Input validation (NumberFormatException)
- *  - Calling multithreaded payroll run
- */
 public class Main {
-
     private static final Scanner scanner = new Scanner(System.in);
     private static EmployeeManager employeeManager;
     private static PayrollManager payrollManager;
 
     public static void main(String[] args) {
-
-        // Initialize managers (loads existing data from file)
         employeeManager = new EmployeeManager();
         payrollManager  = new PayrollManager(employeeManager);
 
         Logger.info("Payroll Management System started.");
-        System.out.println("\n  Welcome to the Multithreaded Payroll Management System");
+        System.out.println("\n  Welcome to the Payroll Management System");
 
         boolean running = true;
         while (running) {
@@ -60,16 +43,13 @@ public class Main {
                 default -> System.out.println("\n  Invalid choice. Please enter 1-8.");
             }
         }
-
         scanner.close();
     }
 
-    // ─── Menu Printer ──────────────────────────────────────────────────────────
-
     private static void printMainMenu() {
-        System.out.println("\n" + "=".repeat(50));
+        System.out.println("\n==================================================");
         System.out.println("         PAYROLL MANAGEMENT SYSTEM");
-        System.out.println("=".repeat(50));
+        System.out.println("==================================================");
         System.out.println("  1. Add Employee");
         System.out.println("  2. View All Employees");
         System.out.println("  3. Search Employee");
@@ -78,10 +58,8 @@ public class Main {
         System.out.println("  6. Run Payroll (Multithreaded)");
         System.out.println("  7. Department-wise Payroll Report");
         System.out.println("  8. Save & Exit");
-        System.out.println("=".repeat(50));
+        System.out.println("==================================================");
     }
-
-    // ─── 1. Add Employee ───────────────────────────────────────────────────────
 
     private static void addEmployee() {
         System.out.println("\n--- ADD EMPLOYEE ---");
@@ -102,7 +80,6 @@ public class Main {
 
         double salary = readDouble("  Base Salary (Rs.): ");
 
-        // Build correct Employee subclass based on type
         Employee emp;
         switch (typeChoice) {
             case 1  -> emp = new FullTimeEmployee(empId, name, dept, salary);
@@ -114,23 +91,18 @@ public class Main {
             }
         }
 
-        // Handle custom exception
         try {
             employeeManager.addEmployee(emp);
-            System.out.println("\n  ✔ Employee added successfully: " + empId);
+            System.out.println("\n  Employee added successfully: " + empId);
         } catch (DuplicateEmployeeException e) {
-            System.out.println("\n  ✘ ERROR: " + e.getMessage());
+            System.out.println("\n  ERROR: " + e.getMessage());
         }
     }
-
-    // ─── 2. View All ───────────────────────────────────────────────────────────
 
     private static void viewAllEmployees() {
         System.out.println("\n--- ALL EMPLOYEES ---");
         employeeManager.displayAllEmployees();
     }
-
-    // ─── 3. Search ─────────────────────────────────────────────────────────────
 
     private static void searchEmployee() {
         System.out.println("\n--- SEARCH EMPLOYEE ---");
@@ -143,12 +115,10 @@ public class Main {
             String empId = scanner.nextLine().trim().toUpperCase();
             try {
                 Employee emp = employeeManager.getEmployeeById(empId);
-                System.out.println("\n  Found:");
-                System.out.println("  " + emp);
+                System.out.println("\n  Found:\n  " + emp);
             } catch (EmployeeNotFoundException e) {
-                System.out.println("\n  ✘ " + e.getMessage());
+                System.out.println("\n  " + e.getMessage());
             }
-
         } else if (choice == 2) {
             System.out.print("  Enter Name to search: ");
             String query = scanner.nextLine().trim();
@@ -158,15 +128,12 @@ public class Main {
         }
     }
 
-    // ─── 4. Update ─────────────────────────────────────────────────────────────
-
     private static void updateEmployee() {
         System.out.println("\n--- UPDATE EMPLOYEE ---");
         System.out.print("  Enter Employee ID to update: ");
         String empId = scanner.nextLine().trim().toUpperCase();
 
         try {
-            // Show current details first
             Employee current = employeeManager.getEmployeeById(empId);
             System.out.println("  Current: " + current);
 
@@ -181,14 +148,12 @@ public class Main {
             double newSalary = readDouble("  New Base Salary [" + current.getBaseSalary() + "]: ");
 
             employeeManager.updateEmployee(empId, newName, newDept, newSalary);
-            System.out.println("\n  ✔ Employee updated successfully.");
+            System.out.println("\n  Employee updated successfully.");
 
         } catch (EmployeeNotFoundException e) {
-            System.out.println("\n  ✘ " + e.getMessage());
+            System.out.println("\n  " + e.getMessage());
         }
     }
-
-    // ─── 5. Delete ─────────────────────────────────────────────────────────────
 
     private static void deleteEmployee() {
         System.out.println("\n--- DELETE EMPLOYEE ---");
@@ -201,56 +166,38 @@ public class Main {
         if (confirm.equals("yes")) {
             try {
                 employeeManager.deleteEmployee(empId);
-                System.out.println("\n  ✔ Employee " + empId + " deleted.");
+                System.out.println("\n  Employee " + empId + " deleted.");
             } catch (EmployeeNotFoundException e) {
-                System.out.println("\n  ✘ " + e.getMessage());
+                System.out.println("\n  " + e.getMessage());
             }
         } else {
             System.out.println("  Delete cancelled.");
         }
     }
 
-    // ─── 6. Run Payroll ────────────────────────────────────────────────────────
-
     private static void runPayroll() {
-        System.out.println("\n  Starting multithreaded payroll run...");
+        System.out.println("\n  Starting payroll run...");
         payrollManager.runPayroll();
     }
 
-    // ─── Input Helpers ─────────────────────────────────────────────────────────
-
-    /**
-     * Reads an integer from console with validation.
-     * Demonstrates: NumberFormatException handling.
-     *
-     * @param prompt Message to display
-     * @return Valid integer input
-     */
     private static int readInt(String prompt) {
         while (true) {
             System.out.print("  " + prompt);
             try {
                 return Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("  ✘ Invalid input. Please enter a number.");
+                System.out.println("  Invalid input. Please enter a number.");
             }
         }
     }
 
-    /**
-     * Reads a double from console with validation.
-     * Demonstrates: NumberFormatException handling.
-     *
-     * @param prompt Message to display
-     * @return Valid double input
-     */
     private static double readDouble(String prompt) {
         while (true) {
             System.out.print("  " + prompt);
             try {
                 return Double.parseDouble(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("  ✘ Invalid input. Please enter a valid number.");
+                System.out.println("  Invalid input. Please enter a valid number.");
             }
         }
     }
