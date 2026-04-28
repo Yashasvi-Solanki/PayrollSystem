@@ -1,0 +1,22 @@
+========================================
+         PAYSLIP - 28-04-2026
+========================================
+Employee ID          : EMP002
+Name                 : Priya Patel
+Department           : HR
+Employee Type        : PART_TIME
+
+----------  EARNINGS  ------------------
+Basic Salary         : Rs.   35000.00
+HRA (20%)            : Rs.    7000.00
+DA  (10%)            : Rs.    3500.00
+GROSS SALARY           Rs.   45500.00
+
+----------  DEDUCTIONS  ----------------
+PF (12% Basic)       : Rs.    4200.00
+Income Tax(10%)      : Rs.    4550.00
+TOTAL DEDUCTIONS       Rs.    8750.00
+
+========================================
+NET SALARY             Rs.   36750.00
+========================================

@@ -1,0 +1,22 @@
+[2026-04-28 12:31:42] [INFO] No existing data file found. Starting fresh.
+[2026-04-28 12:31:42] [INFO] Payroll Management System started.
+[2026-04-28 12:31:42] [INFO] Employee data saved to data/employees.csv
+[2026-04-28 12:31:42] [INFO] Application exited by user.
+[2026-04-28 12:33:05] [INFO] Loaded 0 employees from file.
+[2026-04-28 12:33:05] [INFO] Payroll Management System started.
+[2026-04-28 12:33:41] [INFO] Added employee: EMP001 - Rahul Sharma
+[2026-04-28 12:33:48] [INFO] Added employee: EMP002 - Priya Patel
+[2026-04-28 12:33:54] [INFO] Added employee: EMP003 - Vikram Singh
+[2026-04-28 12:34:10] [INFO] [pool-1-thread-1] Processing payroll for: Rahul Sharma
+[2026-04-28 12:34:10] [INFO] [pool-1-thread-3] Processing payroll for: Vikram Singh
+[2026-04-28 12:34:10] [INFO] [pool-1-thread-2] Processing payroll for: Priya Patel
+[2026-04-28 12:34:11] [INFO] [pool-1-thread-2] Done: Priya Patel | Net Salary: Rs. 36750.00
+[2026-04-28 12:34:11] [INFO] [pool-1-thread-3] Done: Vikram Singh | Net Salary: Rs. 44100.00
+[2026-04-28 12:34:11] [INFO] [pool-1-thread-1] Done: Rahul Sharma | Net Salary: Rs. 52500.00
+[2026-04-28 12:34:11] [INFO] Payroll summary written by FileWriter-Thread
+[2026-04-28 12:34:25] [INFO] Employee data saved to data/employees.csv
+[2026-04-28 12:34:25] [INFO] Application exited by user.
+[2026-04-28 12:35:36] [INFO] Loaded 3 employees from file.
+[2026-04-28 12:35:36] [INFO] Payroll Management System started.
+[2026-04-28 12:37:29] [INFO] Employee data saved to data/employees.csv
+[2026-04-28 12:37:29] [INFO] Application exited by user.

@@ -1,0 +1,22 @@
+========================================
+         PAYSLIP - 28-04-2026
+========================================
+Employee ID          : EMP001
+Name                 : Rahul Sharma
+Department           : Engineering
+Employee Type        : FULL_TIME
+
+----------  EARNINGS  ------------------
+Basic Salary         : Rs.   50000.00
+HRA (20%)            : Rs.   10000.00
+DA  (10%)            : Rs.    5000.00
+GROSS SALARY           Rs.   65000.00
+
+----------  DEDUCTIONS  ----------------
+PF (12% Basic)       : Rs.    6000.00
+Income Tax(10%)      : Rs.    6500.00
+TOTAL DEDUCTIONS       Rs.   12500.00
+
+========================================
+NET SALARY             Rs.   52500.00
+========================================

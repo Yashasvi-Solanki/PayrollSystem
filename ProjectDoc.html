@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Multithreaded Payroll Management System — Project Documentation</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 40px; color: #1a1a1a; font-size: 14px; }
+  h1 { text-align: center; color: #2c3e50; border-bottom: 3px solid #2980b9; padding-bottom: 10px; }
+  h2 { color: #2980b9; border-left: 5px solid #2980b9; padding-left: 10px; margin-top: 40px; }
+  h3 { color: #16a085; margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: #2980b9; color: white; padding: 8px; text-align: left; }
+  td { padding: 8px; border: 1px solid #ccc; vertical-align: top; }
+  tr:nth-child(even) { background: #f0f4f8; }
+  .badge { display: inline-block; background: #e8f4fd; border: 1px solid #2980b9; color: #2980b9; border-radius: 4px; padding: 2px 8px; font-size: 12px; margin: 2px; }
+  .concept { display: inline-block; background: #eafaf1; border: 1px solid #16a085; color: #16a085; border-radius: 4px; padding: 2px 8px; font-size: 12px; margin: 2px; }
+  pre { background: #f4f4f4; border-left: 4px solid #2980b9; padding: 12px; font-size: 12px; overflow-x: auto; }
+  .cover { text-align: center; padding: 60px 0 40px; }
+  .cover h1 { font-size: 28px; border: none; }
+  .cover p { font-size: 16px; color: #555; }
+  .toc li { margin: 6px 0; }
+  @media print { body { margin: 20px; } }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <h1>☕ Multithreaded Payroll Management System</h1>
+  <p><strong>OOP Project — Java</strong></p>
+  <p>A complete console-based Java application demonstrating<br/>
+  OOP, Collections, Multithreading, File I/O, Exception Handling &amp; JDBC</p>
+  <hr/>
+  <p>Subject: Object-Oriented Programming (OOP) | Language: Java (JDK 17+)</p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<h2>Table of Contents</h2>
+<ol class="toc">
+  <li>Project Overview</li>
+  <li>Project Structure</li>
+  <li>Java Concepts Used</li>
+  <li>File-by-File Explanation</li>
+  <li>How to Compile &amp; Run</li>
+  <li>Sample Output</li>
+</ol>
+
+<!-- 1. OVERVIEW -->
+<h2>1. Project Overview</h2>
+<table>
+  <tr><th>Field</th><th>Detail</th></tr>
+  <tr><td>Project Name</td><td>Multithreaded Payroll Management System</td></tr>
+  <tr><td>Language</td><td>Java (JDK 17+)</td></tr>
+  <tr><td>Type</td><td>Console-based Application</td></tr>
+  <tr><td>Key Features</td><td>Add/Update/Delete Employees, Multithreaded Payroll Processing, File Persistence, Custom Exceptions, Department Reports</td></tr>
+  <tr><td>Storage</td><td>CSV File (data/employees.csv) + Individual Payslips</td></tr>
+  <tr><td>Optional</td><td>MySQL via JDBC (DBConnection + EmployeeDAO)</td></tr>
+</table>
+
+<h3>Salary Formula</h3>
+<pre>
+Gross Salary = Base Pay + HRA (20% of Base) + DA (10% of Base)
+Deductions   = PF (12% of Base) + Income Tax (10% of Gross)
+Net Salary   = Gross Salary - Deductions
+</pre>
+
+<!-- 2. STRUCTURE -->
+<h2>2. Project Structure</h2>
+<pre>
+PayrollSystem/
+├── src/com/payroll/
+│   ├── Main.java                          ← Entry point, console menu
+│   ├── model/
+│   │   ├── Employee.java                  ← Abstract base class
+│   │   ├── FullTimeEmployee.java          ← Subclass
+│   │   ├── PartTimeEmployee.java          ← Subclass
+│   │   └── ContractEmployee.java          ← Subclass
+│   ├── manager/
+│   │   ├── EmployeeManager.java           ← CRUD with ArrayList + HashMap
+│   │   └── PayrollManager.java            ← ExecutorService thread pool
+│   ├── thread/
+│   │   ├── PayrollWorker.java             ← Runnable per employee
+│   │   └── FileWriterThread.java          ← Extends Thread, writes summary
+│   ├── exception/
+│   │   ├── EmployeeNotFoundException.java ← Custom exception
+│   │   └── DuplicateEmployeeException.java← Custom exception
+│   ├── util/
+│   │   ├── Logger.java                    ← Synchronized file logger
+│   │   ├── FileHandler.java               ← CSV save/load
+│   │   └── PayslipGenerator.java          ← Individual payslip files
+│   └── db/
+│       ├── DBConnection.java              ← JDBC singleton
+│       └── EmployeeDAO.java               ← CRUD on MySQL
+├── data/employees.csv
+├── payslips/
+├── logs/error.log
+├── compile.bat
+└── run.bat
+</pre>
+
+<!-- 3. JAVA CONCEPTS -->
+<h2>3. Java Concepts Used</h2>
+<table>
+  <tr><th>Concept</th><th>Where Used</th><th>How</th></tr>
+  <tr><td>Abstract Class</td><td>Employee.java</td><td>Declared abstract with abstract getEmployeeType()</td></tr>
+  <tr><td>Inheritance</td><td>Full/Part/ContractEmployee</td><td>All extend Employee using <code>extends</code></td></tr>
+  <tr><td>Encapsulation</td><td>Employee.java</td><td>Private fields + public getters/setters</td></tr>
+  <tr><td>Polymorphism</td><td>EmployeeManager, FileHandler</td><td>Employee references hold subclass objects</td></tr>
+  <tr><td>ArrayList</td><td>EmployeeManager</td><td>Ordered list of all employees</td></tr>
+  <tr><td>HashMap</td><td>EmployeeManager</td><td>Fast O(1) lookup by Employee ID</td></tr>
+  <tr><td>Collections.synchronizedMap()</td><td>EmployeeManager</td><td>Thread-safe HashMap wrapper</td></tr>
+  <tr><td>Runnable Interface</td><td>PayrollWorker</td><td>implements Runnable, run() holds salary logic</td></tr>
+  <tr><td>Thread class</td><td>FileWriterThread</td><td>extends Thread, overrides run()</td></tr>
+  <tr><td>ExecutorService</td><td>PayrollManager</td><td>Fixed thread pool, submits PayrollWorker per employee</td></tr>
+  <tr><td>Thread.sleep()</td><td>PayrollWorker</td><td>Simulates real processing delay</td></tr>
+  <tr><td>synchronized</td><td>PayrollWorker, Logger, PayslipGenerator</td><td>Prevents concurrent file write corruption</td></tr>
+  <tr><td>AtomicInteger</td><td>PayrollWorker</td><td>Thread-safe counter for processed employees</td></tr>
+  <tr><td>Future + awaitTermination()</td><td>PayrollManager</td><td>Waits for all threads to complete</td></tr>
+  <tr><td>FileWriter + BufferedWriter</td><td>FileHandler, Logger, PayslipGenerator</td><td>Writing to CSV, log, and payslip files</td></tr>
+  <tr><td>BufferedReader</td><td>FileHandler</td><td>Reading CSV data on startup</td></tr>
+  <tr><td>Custom Exception</td><td>exception/ package</td><td>EmployeeNotFoundException, DuplicateEmployeeException extend Exception</td></tr>
+  <tr><td>try-catch-finally</td><td>Throughout</td><td>NumberFormatException, IOException, InterruptedException, SQLException</td></tr>
+  <tr><td>JDBC + PreparedStatement</td><td>EmployeeDAO, DBConnection</td><td>MySQL CRUD, prevents SQL injection</td></tr>
+  <tr><td>Singleton Pattern</td><td>DBConnection</td><td>Single shared JDBC connection instance</td></tr>
+  <tr><td>Scanner</td><td>Main.java</td><td>Console input reading</td></tr>
+</table>
+
+<!-- 4. FILE BY FILE -->
+<h2>4. File-by-File Explanation</h2>
+
+<!-- Employee.java -->
+<h3>4.1 model/Employee.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Abstract base class representing any employee in the system</td></tr>
+  <tr><td>What it does</td><td>Stores common fields (empId, name, department, baseSalary), provides getters/setters, defines abstract getEmployeeType(), and toCSV() for file saving</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">Abstract Class</span>
+    <span class="concept">Encapsulation</span>
+    <span class="concept">Abstraction</span>
+  </td></tr>
+</table>
+<pre>
+// Encapsulation — private fields
+private String empId;
+private double baseSalary;
+
+// Abstraction — subclasses must implement this
+public abstract String getEmployeeType();
+</pre>
+
+<!-- Subclasses -->
+<h3>4.2 model/FullTimeEmployee.java &amp; PartTimeEmployee.java &amp; ContractEmployee.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What they are</td><td>Concrete subclasses of Employee</td></tr>
+  <tr><td>What they do</td><td>Call super() constructor and implement getEmployeeType() returning "FULL_TIME", "PART_TIME", or "CONTRACT"</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">Inheritance (extends)</span>
+    <span class="concept">Method Overriding</span>
+    <span class="concept">Polymorphism</span>
+    <span class="concept">super() constructor</span>
+  </td></tr>
+</table>
+
+<!-- EmployeeManager -->
+<h3>4.3 manager/EmployeeManager.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Central manager class for all employee CRUD operations</td></tr>
+  <tr><td>What it does</td><td>Add, get, update, delete, search employees. Loads data from CSV on start, saves on exit. Uses ArrayList for ordered storage and HashMap for fast lookup</td></tr>
+  <tr><td>How it works</td><td>addEmployee() checks HashMap for duplicates → throws DuplicateEmployeeException. getEmployeeById() does O(1) map lookup → throws EmployeeNotFoundException if missing. searchByName() iterates ArrayList doing case-insensitive match</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">ArrayList</span>
+    <span class="concept">HashMap</span>
+    <span class="concept">Collections.synchronizedMap()</span>
+    <span class="concept">Custom Exception Throwing</span>
+    <span class="concept">Collections Framework</span>
+  </td></tr>
+</table>
+<pre>
+private final List&lt;Employee&gt; employeeList = new ArrayList&lt;&gt;();
+private final Map&lt;String, Employee&gt; employeeMap = Collections.synchronizedMap(new HashMap&lt;&gt;());
+
+// O(1) lookup
+public Employee getEmployeeById(String empId) throws EmployeeNotFoundException {
+    Employee emp = employeeMap.get(empId);
+    if (emp == null) throw new EmployeeNotFoundException(empId);
+    return emp;
+}
+</pre>
+
+<!-- PayrollManager -->
+<h3>4.4 manager/PayrollManager.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Orchestrates the multithreaded payroll run</td></tr>
+  <tr><td>What it does</td><td>Creates a fixed thread pool of 5 threads, submits one PayrollWorker per employee, waits for all to finish, then starts FileWriterThread for summary. Also provides department-wise payroll report</td></tr>
+  <tr><td>How it works</td><td>ExecutorService.submit() queues each PayrollWorker. executor.shutdown() + awaitTermination(60s) blocks until all threads done. Then FileWriterThread.start() + .join() writes summary</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">ExecutorService</span>
+    <span class="concept">Executors.newFixedThreadPool()</span>
+    <span class="concept">Future</span>
+    <span class="concept">awaitTermination()</span>
+    <span class="concept">Thread Pool</span>
+    <span class="concept">InterruptedException handling</span>
+  </td></tr>
+</table>
+<pre>
+ExecutorService executor = Executors.newFixedThreadPool(5);
+for (Employee emp : employees) {
+    executor.submit(new PayrollWorker(emp));  // one thread per employee
+}
+executor.shutdown();
+executor.awaitTermination(60, TimeUnit.SECONDS); // wait for all
+</pre>
+
+<!-- PayrollWorker -->
+<h3>4.5 thread/PayrollWorker.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>The core thread task — runs salary calculation for one employee</td></tr>
+  <tr><td>What it does</td><td>Implements Runnable. In run(): sleeps 500ms (simulated delay), calculates Gross/Deductions/Net salary, writes to shared payroll_log.txt using synchronized, generates individual payslip, increments AtomicInteger counter</td></tr>
+  <tr><td>How it works</td><td>Thread.sleep(500) simulates processing. synchronized writeToPayrollLog() ensures only one thread writes to the log file at a time — preventing data corruption</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">Runnable interface</span>
+    <span class="concept">run() method</span>
+    <span class="concept">Thread.sleep()</span>
+    <span class="concept">synchronized method</span>
+    <span class="concept">AtomicInteger</span>
+    <span class="concept">InterruptedException</span>
+    <span class="concept">FileWriter (append mode)</span>
+  </td></tr>
+</table>
+<pre>
+public class PayrollWorker implements Runnable {
+    @Override
+    public void run() {
+        Thread.sleep(500);                  // simulate delay
+        // ... salary calculation ...
+        writeToPayrollLog(...);             // synchronized write
+        processedCount.incrementAndGet();   // AtomicInteger
+    }
+
+    private static synchronized void writeToPayrollLog(...) {
+        // Only ONE thread enters at a time
+    }
+}
+</pre>
+
+<!-- FileWriterThread -->
+<h3>4.6 thread/FileWriterThread.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>A dedicated thread for writing the payroll summary footer</td></tr>
+  <tr><td>What it does</td><td>After all PayrollWorker threads finish, this thread appends total employees processed, total payroll cost, and run timestamp to payroll_log.txt</td></tr>
+  <tr><td>How it works</td><td>Extends Thread and overrides run(). PayrollManager calls .start() then .join() to wait for it</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">extends Thread</span>
+    <span class="concept">run() override</span>
+    <span class="concept">Thread.start()</span>
+    <span class="concept">Thread.join()</span>
+    <span class="concept">FileWriter</span>
+  </td></tr>
+</table>
+
+<!-- Exceptions -->
+<h3>4.7 exception/EmployeeNotFoundException.java &amp; DuplicateEmployeeException.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What they are</td><td>Custom checked exceptions for business logic errors</td></tr>
+  <tr><td>What they do</td><td>EmployeeNotFoundException — thrown when searching/updating/deleting a non-existent ID. DuplicateEmployeeException — thrown when adding an ID that already exists</td></tr>
+  <tr><td>How they work</td><td>Extend Exception, call super(message) in constructor, store empId for reference</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">Custom Exception</span>
+    <span class="concept">extends Exception</span>
+    <span class="concept">super() in constructor</span>
+    <span class="concept">Checked Exception</span>
+  </td></tr>
+</table>
+<pre>
+public class EmployeeNotFoundException extends Exception {
+    public EmployeeNotFoundException(String empId) {
+        super("Employee not found with ID: " + empId);
+    }
+}
+</pre>
+
+<!-- Logger -->
+<h3>4.8 util/Logger.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>A utility class for timestamped logging to console and file</td></tr>
+  <tr><td>What it does</td><td>Logger.info() and Logger.error() — both print to console AND append to logs/error.log with timestamp</td></tr>
+  <tr><td>How it works</td><td>Static synchronized methods prevent two threads writing to the log file at the same time</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">synchronized static method</span>
+    <span class="concept">FileWriter (append)</span>
+    <span class="concept">LocalDateTime</span>
+    <span class="concept">PrintWriter</span>
+    <span class="concept">try-with-resources</span>
+  </td></tr>
+</table>
+
+<!-- FileHandler -->
+<h3>4.9 util/FileHandler.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Handles persistent storage of employee data in CSV format</td></tr>
+  <tr><td>What it does</td><td>saveEmployees() writes all employees to data/employees.csv. loadEmployees() reads the file on startup and rebuilds the list, parsing each line into the correct Employee subclass</td></tr>
+  <tr><td>How it works</td><td>Uses FileWriter + BufferedWriter for saving, BufferedReader + FileReader for loading. Handles FileNotFoundException gracefully if file doesn't exist yet</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">FileWriter</span>
+    <span class="concept">BufferedWriter</span>
+    <span class="concept">FileReader</span>
+    <span class="concept">BufferedReader</span>
+    <span class="concept">FileNotFoundException handling</span>
+    <span class="concept">try-with-resources</span>
+    <span class="concept">Polymorphism (Employee reference)</span>
+  </td></tr>
+</table>
+
+<!-- PayslipGenerator -->
+<h3>4.10 util/PayslipGenerator.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Generates a formatted text payslip for each employee</td></tr>
+  <tr><td>What it does</td><td>Writes a detailed payslip to payslips/EMP001_payslip.txt showing earnings breakdown (Basic, HRA, DA) and deductions (PF, Tax) and net salary</td></tr>
+  <tr><td>How it works</td><td>synchronized method → called from multiple PayrollWorker threads safely. Uses BufferedWriter to write formatted lines</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">synchronized</span>
+    <span class="concept">FileWriter + BufferedWriter</span>
+    <span class="concept">String.format()</span>
+    <span class="concept">IOException handling</span>
+  </td></tr>
+</table>
+
+<!-- DBConnection -->
+<h3>4.11 db/DBConnection.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Singleton JDBC connection manager for MySQL (optional module)</td></tr>
+  <tr><td>What it does</td><td>Provides a single shared Connection object. Creates it on first call, reuses on subsequent calls. closeConnection() called at app exit</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">JDBC</span>
+    <span class="concept">DriverManager.getConnection()</span>
+    <span class="concept">Singleton Pattern</span>
+    <span class="concept">Class.forName()</span>
+    <span class="concept">SQLException handling</span>
+  </td></tr>
+</table>
+
+<!-- EmployeeDAO -->
+<h3>4.12 db/EmployeeDAO.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Data Access Object — all MySQL CRUD operations for employees</td></tr>
+  <tr><td>What it does</td><td>insertEmployee(), getAllEmployees(), getEmployeeById(), updateEmployee(), deleteEmployee(), savePayrollRecord() — all using JDBC</td></tr>
+  <tr><td>How it works</td><td>Uses PreparedStatement (not raw SQL strings) to prevent SQL injection. ResultSet maps DB rows back to Employee subclass objects</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">JDBC PreparedStatement</span>
+    <span class="concept">ResultSet</span>
+    <span class="concept">try-with-resources</span>
+    <span class="concept">SQLException handling</span>
+    <span class="concept">DAO Design Pattern</span>
+    <span class="concept">Polymorphism</span>
+  </td></tr>
+</table>
+<pre>
+PreparedStatement ps = conn.prepareStatement(
+    "INSERT INTO employees VALUES (?, ?, ?, ?, ?)");
+ps.setString(1, emp.getEmpId());  // No SQL injection possible
+ps.executeUpdate();
+</pre>
+
+<!-- Main -->
+<h3>4.13 Main.java</h3>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it is</td><td>Entry point of the entire application</td></tr>
+  <tr><td>What it does</td><td>Displays a numbered console menu in a while loop. Routes user input to EmployeeManager/PayrollManager methods. Handles invalid input gracefully</td></tr>
+  <tr><td>How it works</td><td>readInt() and readDouble() helpers catch NumberFormatException and re-prompt. All custom exceptions are caught and shown with friendly messages</td></tr>
+  <tr><td>Java Concepts</td><td>
+    <span class="concept">Scanner</span>
+    <span class="concept">switch expression (Java 14+)</span>
+    <span class="concept">NumberFormatException</span>
+    <span class="concept">try-catch</span>
+    <span class="concept">Object instantiation</span>
+    <span class="concept">Method calls</span>
+  </td></tr>
+</table>
+
+<!-- 5. HOW TO RUN -->
+<h2>5. How to Compile &amp; Run</h2>
+<h3>Step 1 — Compile</h3>
+<pre>
+cd PayrollSystem
+
+javac -d out -sourcepath src ^
+  src\com\payroll\Main.java ^
+  src\com\payroll\model\*.java ^
+  src\com\payroll\manager\*.java ^
+  src\com\payroll\thread\*.java ^
+  src\com\payroll\exception\*.java ^
+  src\com\payroll\util\*.java ^
+  src\com\payroll\db\*.java
+</pre>
+<h3>Step 2 — Run</h3>
+<pre>
+java -cp out com.payroll.Main
+</pre>
+<p>Or double-click <strong>compile.bat</strong> then <strong>run.bat</strong>.</p>
+
+<!-- 6. SAMPLE OUTPUT -->
+<h2>6. Sample Live Output</h2>
+<pre>
+==================================================
+         PAYROLL MANAGEMENT SYSTEM
+==================================================
+  1. Add Employee
+  2. View All Employees
+  3. Search Employee
+  4. Update Employee
+  5. Delete Employee
+  6. Run Payroll (Multithreaded)
+  7. Department-wise Payroll Report
+  8. Save &amp; Exit
+==================================================
+
+--- ALL EMPLOYEES ---
+ID         | Name                 | Department      | Type         | Base Salary
+EMP001     | Rahul Sharma         | Engineering     | FULL_TIME    | 50000.00
+EMP002     | Priya Patel          | HR              | PART_TIME    | 35000.00
+EMP003     | Vikram Singh         | Finance         | CONTRACT     | 42000.00
+
+============================================================
+  PAYROLL PROCESSING STARTED  |  Employees: 3  |  Threads: 5
+============================================================
+[pool-1-thread-1] Processing payroll for: Rahul Sharma
+[pool-1-thread-3] Processing payroll for: Vikram Singh
+[pool-1-thread-2] Processing payroll for: Priya Patel
+[pool-1-thread-2] Done: Priya Patel  | Net Salary: Rs. 36750.00
+[pool-1-thread-3] Done: Vikram Singh | Net Salary: Rs. 44100.00
+[pool-1-thread-1] Done: Rahul Sharma | Net Salary: Rs. 52500.00
+
+  All payroll threads completed successfully!
+============================================================
+  PAYROLL RUN COMPLETE
+  Employees Processed : 3
+  Total Payroll Cost  : Rs. 133350.00
+  Payroll log saved   : data/payroll_log.txt
+  Payslips saved      : payslips/
+============================================================
+</pre>
+
+<hr/>
+<p style="text-align:center; color:#888; font-size:12px;">
+  Multithreaded Payroll Management System — OOP Java Project
+</p>
+</body>
+</html>

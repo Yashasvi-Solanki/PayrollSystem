@@ -1,0 +1,10 @@
+EMP002     | Priya Patel          | HR              | Gross:   45500.00 | Deductions:  8750.00 | Net:   36750.00
+EMP003     | Vikram Singh         | Finance         | Gross:   54600.00 | Deductions: 10500.00 | Net:   44100.00
+EMP001     | Rahul Sharma         | Engineering     | Gross:   65000.00 | Deductions: 12500.00 | Net:   52500.00
+==========================================================================================
+PAYROLL RUN SUMMARY
+Run Date      : 2026-04-28 12:34:11
+Total Employees Processed : 3
+Total Payroll Cost        : Rs. 133350.00
+==========================================================================================
+
