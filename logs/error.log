@@ -20,3 +20,27 @@
 [2026-04-28 12:35:36] [INFO] Payroll Management System started.
 [2026-04-28 12:37:29] [INFO] Employee data saved to data/employees.csv
 [2026-04-28 12:37:29] [INFO] Application exited by user.
+[2026-05-01 01:05:16] [INFO] Loaded 3 employees from file.
+[2026-05-01 01:05:48] [INFO] Employee data saved to data/employees.csv
+[2026-05-01 01:10:25] [INFO] Loaded 3 employees from file.
+[2026-05-01 01:14:30] [INFO] Employee data saved to data/employees.csv
+[2026-05-01 01:28:26] [INFO] Loaded 3 employees from data/employees.csv
+[2026-05-01 01:29:17] [INFO] Added employee: 2222 — Priya Khanna
+[2026-05-01 01:29:25] [INFO] Payroll run started for 4 employees.
+[2026-05-01 01:29:25] [INFO] [PayrollWorker-50] Calculating pay for: Rahul Sharma
+[2026-05-01 01:29:25] [INFO] [PayrollWorker-53] Calculating pay for: Priya Khanna
+[2026-05-01 01:29:25] [INFO] [PayrollWorker-52] Calculating pay for: Vikram Singh
+[2026-05-01 01:29:25] [INFO] [PayrollWorker-51] Calculating pay for: Priya Patel
+[2026-05-01 01:29:26] [INFO] [PayrollWorker-51] Done: Priya Patel | Net: Rs. 35,516.67
+[2026-05-01 01:29:26] [INFO] [PayrollWorker-50] Done: Rahul Sharma | Net: Rs. 55,500.00
+[2026-05-01 01:29:26] [INFO] [PayrollWorker-52] Done: Vikram Singh | Net: Rs. 40,925.00
+[2026-05-01 01:29:26] [INFO] [PayrollWorker-53] Done: Priya Khanna | Net: Rs. 20,741.67
+[2026-05-01 01:29:26] [INFO] Payroll summary written by FileWriter-Thread
+[2026-05-01 01:29:26] [INFO] Payroll complete — 4 records, total Rs.152,683.33
+[2026-05-01 01:37:03] [INFO] Employee data saved to data/employees.csv
+[2026-05-01 01:37:33] [INFO] Loaded 4 employees from data/employees.csv
+[2026-05-01 01:37:45] [INFO] Employee data saved to data/employees.csv
+[2026-05-01 02:10:30] [INFO] Loaded 4 employees from data/employees.csv
+[2026-05-01 02:10:37] [INFO] Employee data saved to data/employees.csv
+[2026-05-02 19:09:05] [INFO] Loaded 4 employees from data/employees.csv
+[2026-05-02 19:09:12] [INFO] Employee data saved to data/employees.csv

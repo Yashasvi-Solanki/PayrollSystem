@@ -1,122 +1,90 @@
 package com.payroll.manager;
 
 import com.payroll.model.Employee;
+import com.payroll.model.PayrollRecord;
+import com.payroll.service.PayrollProcessingEngine;
 import com.payroll.thread.FileWriterThread;
-import com.payroll.thread.PayrollWorker;
 import com.payroll.util.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.function.Consumer;
 
+/**
+ * Thin orchestrator that bridges the GUI controller to the
+ * {@link PayrollProcessingEngine} (Service Layer).
+ *
+ * Controllers never instantiate engine or threading objects directly.
+ */
 public class PayrollManager {
-    private static final int THREAD_POOL_SIZE = 5;
-    private final EmployeeManager employeeManager;
+
+    private final EmployeeManager          employeeManager;
+    private final PayrollProcessingEngine  engine;
 
     public PayrollManager(EmployeeManager employeeManager) {
         this.employeeManager = employeeManager;
+        this.engine          = new PayrollProcessingEngine();
     }
 
-    public void runPayroll() {
+    /**
+     * Kicks off a batch payroll run.
+     *
+     * @param progressCallback receives integer 0–100 as each employee is processed
+     * @return the completed list of {@link PayrollRecord}s
+     */
+    public List<PayrollRecord> runPayroll(Consumer<Integer> progressCallback)
+            throws InterruptedException {
+
         List<Employee> employees = employeeManager.getAllEmployees();
 
         if (employees.isEmpty()) {
-            System.out.println("\n  No employees to process. Add employees first.");
-            return;
+            Logger.info("No employees to process.");
+            return List.of();
         }
 
-        System.out.println("\n============================================================");
-        System.out.println("  PAYROLL PROCESSING STARTED");
-        System.out.println("  Employees: " + employees.size() + " | Thread Pool Size: " + THREAD_POOL_SIZE);
-        System.out.println("============================================================");
+        Logger.info("Payroll run started for " + employees.size() + " employees.");
+        List<PayrollRecord> records = engine.runBatchPayroll(employees, progressCallback);
 
-        PayrollWorker.resetCounter();
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-        List<Future<?>> futures = new ArrayList<>();
+        double totalNet = records.stream().mapToDouble(PayrollRecord::getNetSalary).sum();
 
-        for (Employee emp : employees) {
-            futures.add(executor.submit(new PayrollWorker(emp)));
-        }
-
-        executor.shutdown();
-
-        try {
-            boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
-            if (finished) {
-                System.out.println("\n  All payroll threads completed successfully!");
-            } else {
-                System.out.println("\n  WARNING: Payroll timed out. Some records may be incomplete.");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            Logger.error("Payroll processing was interrupted", e);
-        }
-
-        double totalPayroll = calculateTotalPayroll(employees);
-
-        FileWriterThread summaryThread = new FileWriterThread(employees.size(), totalPayroll);
+        // Background thread writes the summary log
+        FileWriterThread summaryThread = new FileWriterThread(records.size(), totalNet);
         summaryThread.start();
-
-        try {
-            summaryThread.join();
-        } catch (InterruptedException e) {
+        try { summaryThread.join(); } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            Logger.error("Summary thread was interrupted", e);
         }
 
-        printPayrollSummary(employees.size(), totalPayroll);
+        Logger.info("Payroll complete — " + records.size() + " records, total Rs."
+                + String.format("%,.2f", totalNet));
+        return records;
     }
 
-    private double calculateTotalPayroll(List<Employee> employees) {
-        double total = 0;
-        for (Employee emp : employees) {
-            double base  = emp.getBaseSalary();
-            double gross = base + (base * 0.20) + (base * 0.10);
-            double net   = gross - (base * 0.12) - (gross * 0.10);
-            total += net;
-        }
-        return total;
-    }
-
-    private void printPayrollSummary(int totalEmployees, double totalPayroll) {
-        System.out.println("\n============================================================");
-        System.out.println("  PAYROLL RUN COMPLETE");
-        System.out.printf("  Employees Processed : %d%n", totalEmployees);
-        System.out.printf("  Total Payroll Cost  : Rs. %.2f%n", totalPayroll);
-        System.out.println("  Payroll log saved   : data/payroll_log.txt");
-        System.out.println("  Payslips saved      : payslips/");
-        System.out.println("============================================================");
-    }
-
+    /** Department-wise breakdown — used by the Reports tab. */
     public void generateDepartmentReport() {
         List<Employee> employees = employeeManager.getAllEmployees();
-        if (employees.isEmpty()) {
-            System.out.println("  No data for report.");
-            return;
+        if (employees.isEmpty()) { System.out.println("  No data."); return; }
+
+        java.util.Map<String, Double> totals = new java.util.LinkedHashMap<>();
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+
+        for (Employee e : employees) {
+            double g   = e.calculateGrossPay();
+            double pf  = switch (e.getEmployeeType()) {
+                case "FULL_TIME" -> e.getBaseSalary() * 0.12;
+                case "PART_TIME" -> e.getBaseSalary() * 0.06;
+                default          -> 0.0;
+            };
+            double net = g - pf;
+            totals.merge(e.getDepartment(), net, Double::sum);
+            counts.merge(e.getDepartment(), 1,   Integer::sum);
         }
 
-        java.util.Map<String, Double> deptTotals = new java.util.HashMap<>();
-        java.util.Map<String, Integer> deptCounts = new java.util.HashMap<>();
-
-        for (Employee emp : employees) {
-            double base  = emp.getBaseSalary();
-            double gross = base + (base * 0.20) + (base * 0.10);
-            double net   = gross - (base * 0.12) - (gross * 0.10);
-
-            String dept = emp.getDepartment();
-            deptTotals.put(dept, deptTotals.getOrDefault(dept, 0.0) + net);
-            deptCounts.put(dept, deptCounts.getOrDefault(dept, 0) + 1);
-        }
-
-        System.out.println("\n============================================================");
+        System.out.println("\n" + "=".repeat(60));
         System.out.println("  DEPARTMENT-WISE PAYROLL REPORT");
-        System.out.println("============================================================");
-        System.out.printf("%-20s | %-10s | %s%n", "Department", "Employees", "Total Net Payroll");
-        System.out.println("------------------------------------------------------------");
-
-        for (String dept : deptTotals.keySet()) {
-            System.out.printf("%-20s | %-10d | Rs. %.2f%n", dept, deptCounts.get(dept), deptTotals.get(dept));
-        }
-        System.out.println("============================================================");
+        System.out.println("=".repeat(60));
+        System.out.printf("%-20s | %-10s | %s%n", "Department", "Employees", "Est. Net Payroll");
+        System.out.println("-".repeat(60));
+        totals.forEach((dept, total) ->
+                System.out.printf("%-20s | %-10d | Rs. %,.2f%n", dept, counts.get(dept), total));
+        System.out.println("=".repeat(60));
     }
 }
